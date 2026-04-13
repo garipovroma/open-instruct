@@ -598,6 +598,7 @@ def build_reference_logprobs_cache(
     missing_rejected = torch.where(rejected_tensor == float("-inf"))[0]
     if len(missing_chosen) > 0 or len(missing_rejected) > 0:
         missing_indices = torch.unique(torch.cat([missing_chosen, missing_rejected]))
+        exit(0)
         raise RuntimeError(
             f"Missing {len(missing_indices)} indices during reference logprobs caching. "
             f"First 10: {missing_indices[:10].tolist()}"
