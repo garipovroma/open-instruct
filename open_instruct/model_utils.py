@@ -495,6 +495,7 @@ def save_with_accelerate(
         )
 
     unwrapped_model: transformers.PreTrainedModel = accelerator.unwrap_model(model)
+    unwrapped_model.generation_config = model.generation_config
     if model_attribute_to_save is not None:
         unwrapped_model = getattr(unwrapped_model, model_attribute_to_save)
     # When doing multi-gpu training, we need to use accelerator.get_state_dict(model) to get the state_dict.
