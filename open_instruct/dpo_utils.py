@@ -593,6 +593,10 @@ def build_reference_logprobs_cache(
     if dist.is_initialized():
         dist.all_reduce(chosen_tensor, op=dist.ReduceOp.MAX)
         dist.all_reduce(rejected_tensor, op=dist.ReduceOp.MAX)
+        
+    if is_main_process:
+        logger.info(f"Saving reference logprobs cache to {cache_path}")
+        cache.to_disk(cache_path)
 
     missing_chosen = torch.where(chosen_tensor == float("-inf"))[0]
     missing_rejected = torch.where(rejected_tensor == float("-inf"))[0]
@@ -615,9 +619,6 @@ def build_reference_logprobs_cache(
     else:
         logger.info(f"Reference logprobs cached, using {cache_mem_gib:.2f} GiB of RAM.")
 
-    if is_main_process:
-        logger.info(f"Saving reference logprobs cache to {cache_path}")
-        cache.to_disk(cache_path)
 
     if dist.is_initialized():
         dist.barrier()
