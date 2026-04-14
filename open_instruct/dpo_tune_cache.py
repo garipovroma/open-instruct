@@ -396,10 +396,10 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
         logger.info(f"Filtering train_dataset to {len(indices_set)} indices from {args.filter_by_indices_dataset}.")
         train_dataset = train_dataset.filter(lambda x: x["index"] in indices_set)
         logger.info(f"Train dataset size after filtering: {len(train_dataset)}.")
-    elif args.max_train_samples is not None:
-        max_train_samples = min(len(train_dataset), args.max_train_samples)
-        logger.info(f"Limiting training samples to {max_train_samples} from {len(train_dataset)}.")
-        train_dataset = train_dataset.select(range(max_train_samples))
+    # elif args.max_train_samples is not None:
+    #     max_train_samples = min(len(train_dataset), args.max_train_samples)
+    #     logger.info(f"Limiting training samples to {max_train_samples} from {len(train_dataset)}.")
+    #     train_dataset = train_dataset.select(range(max_train_samples))
     original_dataset_size = len(train_dataset)
 
     # Log a few random samples from the training set:
