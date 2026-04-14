@@ -390,11 +390,17 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
 
     # Capture full dataset size by getting it from the dataset. Sharding happens inside the dataloaders, not the dataset, so we're fine to do this.
     # This is used to allocate tensors for the logprobs cache.
-    original_dataset_size = len(train_dataset)
-    if args.max_train_samples is not None:
+    if args.filter_by_indices_dataset is not None:
+        import datasets as hf_datasets
+        indices_set = set(hf_datasets.load_dataset(args.filter_by_indices_dataset, split="train")["index"])
+        logger.info(f"Filtering train_dataset to {len(indices_set)} indices from {args.filter_by_indices_dataset}.")
+        train_dataset = train_dataset.filter(lambda x: x["index"] in indices_set)
+        logger.info(f"Train dataset size after filtering: {len(train_dataset)}.")
+    elif args.max_train_samples is not None:
         max_train_samples = min(len(train_dataset), args.max_train_samples)
         logger.info(f"Limiting training samples to {max_train_samples} from {len(train_dataset)}.")
         train_dataset = train_dataset.select(range(max_train_samples))
+    original_dataset_size = len(train_dataset)
 
     # Log a few random samples from the training set:
     for index in random.sample(range(len(train_dataset)), 3):

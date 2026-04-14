@@ -352,6 +352,10 @@ class ExperimentConfig(
             )
         },
     )
+    filter_by_indices_dataset: str | None = field(
+        default=None,
+        metadata={"help": "HuggingFace dataset repo id with an 'index' column. If set, filters train_dataset to only rows whose 'index' value appears in that column."},
+    )
     preprocessing_num_workers: int | None = field(
         default=None, metadata={"help": "The number of processes to use for the preprocessing."}
     )
@@ -602,7 +606,6 @@ def build_reference_logprobs_cache(
 
         nirvana_dl.snapshot.dump_snapshot()
         time.sleep(300)
-        exit(0)
 
     missing_chosen = torch.where(chosen_tensor == float("-inf"))[0]
     missing_rejected = torch.where(rejected_tensor == float("-inf"))[0]
