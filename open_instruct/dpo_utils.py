@@ -596,7 +596,13 @@ def build_reference_logprobs_cache(
         
     if is_main_process:
         logger.info(f"Saving reference logprobs cache to {cache_path}")
+        cache = model_utils.TensorCache(tensors={"chosen_logps": chosen_tensor, "rejected_logps": rejected_tensor})
         cache.to_disk(cache_path)
+        import nirvana_dl
+
+        nirvana_dl.snapshot.dump_snapshot()
+        time.sleep(300)
+        exit(0)
 
     missing_chosen = torch.where(chosen_tensor == float("-inf"))[0]
     missing_rejected = torch.where(rejected_tensor == float("-inf"))[0]
