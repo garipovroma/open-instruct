@@ -522,6 +522,9 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
     print_gpu_stats(init_gpu_memory)
 
     # Cache the logprobs
+    if accelerator.is_main_process:
+        train_dataset.push_to_hub('garipovroma/olmo-3-preference-mix-deltas_reasoning-yolo_scottmix-DECON-accurate-15000-samples')
+
     if args.loss_type.needs_reference_model:
         ref_cache_hash = dpo_utils.compute_reference_cache_hash(args, tc)
         reference_cache_path = pathlib.Path(dpo_utils.REFERENCE_LOGPROBS_CACHE_PATH) / f"{ref_cache_hash}.pt"
