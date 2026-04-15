@@ -758,6 +758,9 @@ def compute_loss(
     if loss_type in (DPOLossType.dpo, DPOLossType.dpo_norm):
         assert reference_cache is not None
         ref_logps = reference_cache[batch["index"]]
+        assert ref_logps["chosen_logps"] != -torch.inf
+        assert ref_logps["rejected_logps"] != -torch.inf
+        print(ref_logps["chosen_logps"], ref_logps["rejected_logps"])
         return dpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,
@@ -777,6 +780,9 @@ def compute_loss(
     elif loss_type == DPOLossType.wpo:
         assert reference_cache is not None
         ref_logps = reference_cache[batch["index"]]
+        assert ref_logps["chosen_logps"] != -torch.inf
+        assert ref_logps["rejected_logps"] != -torch.inf
+        print(ref_logps["chosen_logps"], ref_logps["rejected_logps"])
         return wpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,
