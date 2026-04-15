@@ -394,7 +394,7 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
         import datasets as hf_datasets
         indices_set = set(hf_datasets.load_dataset(args.filter_by_indices_dataset, split="train")["index"])
         logger.info(f"Filtering train_dataset to {len(indices_set)} indices from {args.filter_by_indices_dataset}.")
-        train_dataset = train_dataset.filter(lambda x: x["index"] in indices_set)
+        train_dataset = train_dataset.filter(lambda x: int(x["index"]) in indices_set)
         logger.info(f"Train dataset size after filtering: {len(train_dataset)}.")
     # elif args.max_train_samples is not None:
     #     max_train_samples = min(len(train_dataset), args.max_train_samples)
