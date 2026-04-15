@@ -684,7 +684,6 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
                     metrics_to_log["perf/tokens_per_second_step"] = step_tokens_per_second
                     metrics_to_log["perf/tokens_per_second_total"] = total_tokens_per_second
 
-                    logger.info(logger_str)
                     if args.with_tracking:
                         accelerator.log(metrics_to_log, step=completed_steps)
                     if accelerator.is_main_process:
@@ -694,6 +693,7 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
                             start_time=start_time,
                             wandb_url=None if wandb_tracker is None else wandb_tracker.run.url,
                         )
+                        logger.info(logger_str)
                     # Reset the local metrics
                     local_metrics.metrics.zero_()
                     mfu_interval_start = mfu_interval_end
