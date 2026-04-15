@@ -665,7 +665,12 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
                                 "rewards/margin": global_metrics["rewards/margin"],
                             }
                         )
-                    logger_str = f"  Step: {completed_steps}, LR: {lr_scheduler.get_last_lr()[0]}, Loss: {global_metrics['train_loss']}"
+                    logger_str = f"  Step: {completed_steps}, LR: {lr_scheduler.get_last_lr()[0]}, Loss: {global_metrics['train_loss']}\n"
+                    for key, value in global_metrics.items():
+                        if 'entropy' in key.lower() or 'norm' in key.lower() or 'reward' in key.lower():
+                            logger_str += f"\t{key}: {value:.4f}, "
+                    logger_str += "\n"
+                    
                     if args.load_balancing_loss:
                         logger_str += f" Aux Loss: {global_metrics['aux_loss']}"
                         metrics_to_log["aux_loss"] = global_metrics["aux_loss"]
@@ -703,6 +708,7 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
                         f.write("COMPLETED")  # annoyingly, empty files arent uploaded by beaker.
                     if accelerator.is_main_process:
                         clean_last_n_checkpoints(args.output_dir, args.keep_last_n_checkpoints)
+                        import nirvana_dl; nirvana_dl.snapshot.dump_snapshot()
                     accelerator.wait_for_everyone()
 
                 if completed_steps >= args.max_train_steps:
@@ -718,6 +724,7 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
                 f.write("COMPLETED")  # annoyingly, empty files arent uploaded by beaker.
             if accelerator.is_main_process:
                 clean_last_n_checkpoints(args.output_dir, args.keep_last_n_checkpoints)
+                import nirvana_dl; nirvana_dl.snapshot.dump_snapshot()
             accelerator.wait_for_everyone()
 
     if args.output_dir is not None:
@@ -751,6 +758,7 @@ def main(args: dpo_utils.ExperimentConfig, tc: TokenizerConfig):
         )
     if args.push_to_hub and accelerator.is_main_process:
         model_utils.push_folder_to_hub(args.output_dir, args.hf_repo_id, args.hf_repo_revision)
+        import nirvana_dl; nirvana_dl.snapshot.dump_snapshot()
     accelerator.wait_for_everyone()
     if args.with_tracking:
         accelerator.end_training()
