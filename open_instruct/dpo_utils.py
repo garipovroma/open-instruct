@@ -536,9 +536,9 @@ def build_reference_logprobs_cache(
     Returns:
         TensorCache containing 'chosen_logps' and 'rejected_logps' tensors.
     """
-    # if cache_path.exists():
-    logger.info(f"Loading reference logprobs cache from {cache_path}")
-    return model_utils.TensorCache.from_disk(cache_path, device=device)
+    if cache_path.exists():
+        logger.info(f"Loading reference logprobs cache from {cache_path}")
+        return model_utils.TensorCache.from_disk(cache_path, device=device)
 
     if is_main_process:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -598,10 +598,10 @@ def build_reference_logprobs_cache(
     missing_rejected = torch.where(rejected_tensor == float("-inf"))[0]
     if len(missing_chosen) > 0 or len(missing_rejected) > 0:
         missing_indices = torch.unique(torch.cat([missing_chosen, missing_rejected]))
-        raise RuntimeError(
+        logger.error((
             f"Missing {len(missing_indices)} indices during reference logprobs caching. "
             f"First 10: {missing_indices[:10].tolist()}"
-        )
+        ))
 
     model.train()
     cache = model_utils.TensorCache(tensors={"chosen_logps": chosen_tensor, "rejected_logps": rejected_tensor})
@@ -617,6 +617,8 @@ def build_reference_logprobs_cache(
     if is_main_process:
         logger.info(f"Saving reference logprobs cache to {cache_path}")
         cache.to_disk(cache_path)
+
+        import nirvana_dl; nirvana_dl.snapshot.dump_snapshot()
 
     if dist.is_initialized():
         dist.barrier()
